@@ -1,4 +1,4 @@
-module github.com/SunveerIV/saffron-real-estate/backend
+module saffronreal.estate/backend
 
 go 1.25.0
 
