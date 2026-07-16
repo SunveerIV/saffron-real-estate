@@ -6,27 +6,27 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"saffronreal.estate/backend/internal/config"
+	"saffronreal.estate/backend/internal/db"
 )
 
 func main() {
-	db := initDB()
-	defer db.Close()
+	var url string = initURL()
+	database := initDB(url)
+	defer database.Close()
 }
 
-func initDB() *pgxpool.Pool {
+func initURL() string {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("Unable to get env DB URL: %v", err)
 	}
+	return cfg.DatabaseURL
+}
 
-	db, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
+func initDB(url string) *pgxpool.Pool {
+	database, err := db.OpenPool(context.Background(), url)
 	if err != nil {
 		log.Fatalf("Unable to create database pool: %v", err)
 	}
-
-	if err := db.Ping(context.Background()); err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
-	}
-
-	return db
+	return database
 }
