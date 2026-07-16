@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"saffronreal.estate/backend/internal/config"
 )
 
 func main() {
@@ -14,10 +14,12 @@ func main() {
 }
 
 func initDB() *pgxpool.Pool {
-	db, err := pgxpool.New(
-		context.Background(),
-		os.Getenv("DATABASE_URL"),
-	)
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Unable to get env DB URL: %v", err)
+	}
+
+	db, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Unable to create database pool: %v", err)
 	}
