@@ -1,6 +1,6 @@
 FROM golang:1.26-bookworm AS build
 
-WORKDIR /app
+WORKDIR /backend
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -15,7 +15,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /backend
+
 COPY --from=build /server /server
+COPY --from=build /backend/migrations /backend/migrations
 
 EXPOSE 8080
 
