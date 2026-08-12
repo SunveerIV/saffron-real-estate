@@ -14,22 +14,18 @@ import (
 )
 
 func main() {
-	var url string = initURL()
-	err := db.RunMigrations(url)
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
+	err = db.RunMigrations(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Error migrating database: %v", err)
 	}
-	
-	database := initDB(url)
-	defer database.Close()
-}
 
-func initURL() string {
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("Unable to get env DB URL: %v", err)
-	}
-	return cfg.DatabaseURL
+	database := initDB(cfg.DatabaseURL)
+	defer database.Close()
 }
 
 func initDB(url string) *pgxpool.Pool {
