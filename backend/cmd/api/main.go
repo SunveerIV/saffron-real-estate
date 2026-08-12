@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	_ "github.com/lib/pq"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"saffronreal.estate/backend/internal/config"
 	"saffronreal.estate/backend/internal/db"
 
@@ -24,14 +22,8 @@ func main() {
 		log.Fatalf("Error migrating database: %v", err)
 	}
 
-	database := initDB(cfg.DatabaseURL)
-	defer database.Close()
-}
-
-func initDB(url string) *pgxpool.Pool {
-	database, err := db.OpenPool(context.Background(), url)
+	_, err = db.OpenPool(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Unable to create database pool: %v", err)
 	}
-	return database
 }

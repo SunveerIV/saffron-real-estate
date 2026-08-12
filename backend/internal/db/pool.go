@@ -7,7 +7,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func OpenPool(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
+func OpenPool(databaseURL string) (*pgxpool.Pool, error) {
+	ctx := context.Background()
 
 	pool, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
@@ -19,6 +20,7 @@ func OpenPool(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 		pool.Close()
 		return nil, fmt.Errorf("ping database: %w", err)
 	}
+	defer pool.Close()
 
 	return pool, nil
 }
