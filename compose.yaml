@@ -16,8 +16,6 @@ services:
   backend:
     build:
       context: ./backend
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgres://app:devpassword@db:5432/app?sslmode=disable
     ports:

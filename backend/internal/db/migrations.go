@@ -21,7 +21,7 @@ func RunMigrations(databaseURL string) error {
 		return fmt.Errorf("Unable to create database driver: %v", err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file:///backend/migrations", "postgres", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", "postgres", driver)
 	if err != nil {
 		return fmt.Errorf("Unable to create migration instance: %v", err)
 	}

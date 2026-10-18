@@ -3,6 +3,8 @@ package config
 import (
 	"errors"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -10,6 +12,10 @@ type Config struct {
 }
 
 func Load() (Config, error) {
+	err := godotenv.Load()
+	if err != nil && !os.IsNotExist(err) {
+		return Config{}, err
+	}
 	url := os.Getenv("DATABASE_URL")
 
 	if url == "" {
