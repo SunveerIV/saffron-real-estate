@@ -16,18 +16,18 @@ func RunMigrations(pool *pgxpool.Pool) error {
 
 	driver, err := postgres.WithInstance(conn, &postgres.Config{})
 	if err != nil {
-		return fmt.Errorf("Unable to create database driver: %v", err)
+		return fmt.Errorf("unable to create database driver: %v", err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance("file://migrations", "postgres", driver)
 	if err != nil {
-		return fmt.Errorf("Unable to create migration instance: %v", err)
+		return fmt.Errorf("unable to create migration instance: %v", err)
 	}
 	defer m.Close()
 
 	err = m.Up()
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return fmt.Errorf("Unable to run migrations: %v", err)
+		return fmt.Errorf("unable to run migrations: %v", err)
 	}
 
 	return nil
