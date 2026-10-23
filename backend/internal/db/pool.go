@@ -4,23 +4,35 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func OpenPool(databaseURL string) (*pgxpool.Pool, error) {
-	ctx := context.Background()
+func PoolWithName(
+	ctx context.Context,
+	adminPool *pgxpool.Pool,
+	name string,
+) (*pgxpool.Pool, error) {
+	var exists bool
 
-	pool, err := pgxpool.New(ctx, databaseURL)
-	if err != nil {
-		return nil, fmt.Errorf("create database pool: %w", err)
+	err := adminPool.QueryRow(ctx,
+		"SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)",
+		name,
+	).Scan(&exists)
+
+	if !exists {
+		_, err := adminPool.Exec(ctx, "CREATE DATABASE "+pgx.Identifier{name}.Sanitize())
+		if err != nil {
+			return nil, fmt.Errorf("error creating main database: %w", err)
+		}
 	}
 
-	err = pool.Ping(ctx)
-	if err != nil {
-		pool.Close()
-		return nil, fmt.Errorf("ping database: %w", err)
-	}
-	defer pool.Close()
+	cfg := adminPool.Config()
+	cfg.ConnConfig.Database = name
 
-	return pool, nil
+	mainDatabase, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to main database: %w", err)
+	}
+	return mainDatabase, nil
 }

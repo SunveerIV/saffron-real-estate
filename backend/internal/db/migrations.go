@@ -1,19 +1,17 @@
 package db
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 )
 
-func RunMigrations(databaseURL string) error {
-	conn, err := sql.Open("postgres", databaseURL)
-	if err != nil {
-		return fmt.Errorf("Unable to connect to database: %v", err)
-	}
+func RunMigrations(pool *pgxpool.Pool) error {
+	conn := stdlib.OpenDBFromPool(pool)
 	defer conn.Close()
 
 	driver, err := postgres.WithInstance(conn, &postgres.Config{})

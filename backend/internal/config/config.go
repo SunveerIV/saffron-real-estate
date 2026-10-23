@@ -7,8 +7,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const mainDatabaseName = "saffron_backend_db"
+
 type Config struct {
-	DatabaseURL string
+	DatabaseURL      string
+	MainDatabaseName string
 }
 
 func Load() (Config, error) {
@@ -23,6 +26,7 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		DatabaseURL: url,
+		DatabaseURL:      url,
+		MainDatabaseName: mainDatabaseName,
 	}, nil
 }
