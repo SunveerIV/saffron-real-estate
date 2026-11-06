@@ -46,9 +46,12 @@ Create `backend/.env` with a connection string for your local PostgreSQL instanc
 
 ```dotenv
 DATABASE_URL=postgres://app:devpassword@localhost:5432/app?sslmode=disable
+MAIN_DATABASE_NAME=<desired name>
 ```
 
 The example credentials match Compose, but Compose does not publish PostgreSQL's port to the host. Running the Go process locally requires a separately accessible PostgreSQL instance or a local Compose override that publishes the database port.
+
+You can set `MAIN_DATABASE_NAME` to anything, but it will modify the database if tables already exist.
 
 From the repository root:
 
