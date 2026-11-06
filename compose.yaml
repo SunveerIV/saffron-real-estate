@@ -18,6 +18,7 @@ services:
       context: ./backend
     environment:
       DATABASE_URL: postgres://app:devpassword@db:5432/app?sslmode=disable
+      MAIN_DATABASE_NAME: saffron_backend_db
     ports:
       - "8080:8080"
     depends_on:

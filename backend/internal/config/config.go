@@ -7,8 +7,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const mainDatabaseName = "saffron_backend_db"
-
 type Config struct {
 	DatabaseURL      string
 	MainDatabaseName string
@@ -23,6 +21,11 @@ func Load() (Config, error) {
 
 	if url == "" {
 		return Config{}, errors.New("DATABASE_URL environment variable not set")
+	}
+
+	mainDatabaseName := os.Getenv("MAIN_DATABASE_NAME")
+	if mainDatabaseName == "" {
+		return Config{}, errors.New("MAIN_DATABASE_NAME environment variable not set")
 	}
 
 	return Config{
