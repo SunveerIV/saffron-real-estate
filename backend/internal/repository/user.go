@@ -2,10 +2,15 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"saffronreal.estate/backend/internal/model"
+)
+
+var (
+	ErrUserNotFound  = errors.New("user not found")
+	ErrEmailConflict = errors.New("email is already in use")
 )
 
 type UserRepository struct {
@@ -27,7 +32,7 @@ func (r *UserRepository) NewUser(ctx context.Context, email string) (model.User,
 	}
 
 	if emailExists {
-		return model.User{}, fmt.Errorf("user already exists")
+		return model.User{}, ErrEmailConflict
 	}
 
 	const createUserQuery = `
@@ -49,7 +54,7 @@ func (r *UserRepository) GetUser(ctx context.Context, email string) (model.User,
 	}
 
 	if !emailExists {
-		return model.User{}, fmt.Errorf("user does not exist")
+		return model.User{}, ErrUserNotFound
 	}
 
 	return r.userFromEmail(ctx, email)
@@ -61,7 +66,11 @@ func (r *UserRepository) userFromEmail(ctx context.Context, email string) (model
 	`
 	var user model.User
 
-	err := r.pool.QueryRow(ctx, userFromEmailQuery, email).Scan(&user)
+	err := r.pool.QueryRow(ctx, userFromEmailQuery, email).Scan(
+		&user.Id,
+		&user.Email,
+		&user.TimeCreated,
+	)
 	if err != nil {
 		return model.User{}, err
 	}
@@ -71,9 +80,7 @@ func (r *UserRepository) userFromEmail(ctx context.Context, email string) (model
 func (r *UserRepository) EmailExists(ctx context.Context, email string) (bool, error) {
 	const userExistsQuery = `
 		SELECT EXISTS (
-			SELECT 1,
-			FROM users,
-			WHERE email = $1
+			SELECT * FROM users WHERE email = $1
 		);
 	`
 	var emailExists bool
