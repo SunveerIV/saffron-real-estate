@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"saffronreal.estate/backend/internal/app"
 
 	_ "github.com/lib/pq"
 
@@ -52,5 +54,17 @@ func run() error {
 		return fmt.Errorf("unable to migrate database: %v", err)
 	}
 
-	return nil
+	server := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: app.New(mainPool),
+	}
+
+	serverErrors := make(chan error, 1)
+
+	go func() {
+		log.Printf("HTTP server listening on %s", server.Addr)
+		serverErrors <- server.ListenAndServe()
+	}()
+
+	return <-serverErrors
 }
