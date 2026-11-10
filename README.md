@@ -2,7 +2,8 @@
 
 An in-progress Go backend for managing real estate purchase requests and users, backed by PostgreSQL.
 
-The current entry point connects to PostgreSQL, creates the application database if needed, applies migrations, and exits. HTTP routes and a frontend are not implemented yet.
+The current entry point connects to PostgreSQL, creates the application database if needed, applies migrations,
+and starts http server.
 
 ## Stack
 
@@ -20,9 +21,7 @@ Install Docker with Docker Compose, then run from the repository root:
 docker compose up --build
 ```
 
-Compose starts PostgreSQL, waits for it to become healthy, and runs the backend. The backend creates `saffron_backend_db` and applies the migrations in `backend/migrations`. A successful backend run exits with code `0`; PostgreSQL continues running.
-
-Although Compose maps port `8080`, the backend does not currently start an HTTP server.
+Compose starts PostgreSQL, waits for it to become healthy, and runs the backend. The backend creates `saffron_backend_db` and applies the migrations in `backend/migrations`.
 
 To connect to the application database:
 
@@ -47,6 +46,7 @@ Create `backend/.env` with a connection string for your local PostgreSQL instanc
 ```dotenv
 DATABASE_URL=postgres://app:devpassword@localhost:5432/app?sslmode=disable
 MAIN_DATABASE_NAME=<desired name>
+PORT=<port>
 ```
 
 The example credentials match Compose, but Compose does not publish PostgreSQL's port to the host. Running the Go process locally requires a separately accessible PostgreSQL instance or a local Compose override that publishes the database port.
@@ -67,15 +67,16 @@ Run from `backend/` so the process can find `.env` and the relative `migrations/
 
 ```text
 .
-├── compose.yaml
 └── backend/
     ├── cmd/api/             # Database initialization entry point
     ├── internal/
+    │   ├── app/             # Initialize http handlers
     │   ├── config/          # Environment configuration
     │   ├── db/              # Database creation, pools, and migrations
-    │   └── model/           # User and purchase request models
-    ├── migrations/          # Ordered SQL migrations
-    ├── Dockerfile
-    ├── go.mod
-    └── go.sum
+    │   ├── model/           # User and purchase request models
+    │   ├── repository/      # Postgres command executors
+    │   ├── response/        # JSON responses
+    │   ├── service/         # Input validation
+    │   └── util/            # Utility
+    └── migrations/          # Ordered SQL migrations
 ```
