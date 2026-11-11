@@ -7,7 +7,7 @@ and starts http server.
 
 ## Stack
 
-- Go 1.25.0
+- Go 1.26.0
 - PostgreSQL 18
 - `pgx` for database access
 - `golang-migrate` for SQL migrations
