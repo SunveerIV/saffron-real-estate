@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"testing"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -49,7 +50,7 @@ func newDatabaseName() string {
 	return "test_" + strings.ReplaceAll(newUUID.String(), "-", "")
 }
 
-func NewTestDB() *pgxpool.Pool {
+func NewTestDB(t *testing.T) *pgxpool.Pool {
 	testPool, err := db.PoolWithName(ctx, adminPool, newDatabaseName())
 	if err != nil {
 		log.Fatalf("unable to retrieve database main database: %v", err)
@@ -59,10 +60,15 @@ func NewTestDB() *pgxpool.Pool {
 	if err != nil {
 		log.Fatalf("unable to migrate database: %v", err)
 	}
+
+	t.Cleanup(func() {
+		defer deleteTestDB(testPool)
+	})
+
 	return testPool
 }
 
-func DeleteTestDB(pool *pgxpool.Pool) {
+func deleteTestDB(pool *pgxpool.Pool) {
 	name := pool.Config().ConnConfig.Database
 	pool.Close()
 
