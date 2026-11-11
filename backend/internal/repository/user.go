@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"saffronreal.estate/backend/internal/model"
 )
@@ -64,17 +65,13 @@ func (r *UserRepository) userFromEmail(ctx context.Context, email string) (model
 	const userFromEmailQuery = `
 		SELECT * FROM users WHERE email = $1 LIMIT 1
 	`
-	var user model.User
 
-	err := r.pool.QueryRow(ctx, userFromEmailQuery, email).Scan(
-		&user.Id,
-		&user.Email,
-		&user.TimeCreated,
-	)
+	rows, err := r.pool.Query(ctx, userFromEmailQuery, email)
 	if err != nil {
 		return model.User{}, err
 	}
-	return user, nil
+
+	return pgx.CollectOneRow(rows, pgx.RowToStructByName[model.User])
 }
 
 func (r *UserRepository) EmailExists(ctx context.Context, email string) (bool, error) {
