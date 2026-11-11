@@ -3,8 +3,10 @@ package config
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
+	"saffronreal.estate/backend/internal/util"
 )
 
 type Config struct {
@@ -14,7 +16,12 @@ type Config struct {
 }
 
 func Load() (Config, error) {
-	err := godotenv.Load()
+	backendDirectory, err := util.FindBackendDirectory()
+	if err != nil {
+		return Config{}, err
+	}
+
+	err = godotenv.Load(filepath.Join(backendDirectory, ".env"))
 	if err != nil && !os.IsNotExist(err) {
 		return Config{}, err
 	}
