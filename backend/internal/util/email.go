@@ -1,10 +1,10 @@
 package util
 
-import "errors"
+import (
+	"net/mail"
+)
 
-func ValidateEmail(email string) error {
-	if email != "" {
-		return nil
-	}
-	return errors.New("invalid Email")
+func ValidateEmail(email string) bool {
+	addr, err := mail.ParseAddress(email)
+	return err == nil && addr.Address == email
 }

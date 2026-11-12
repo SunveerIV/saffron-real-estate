@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strings"
 
 	"saffronreal.estate/backend/internal/model"
 	"saffronreal.estate/backend/internal/repository"
@@ -27,19 +27,21 @@ func NewUserService(
 }
 
 func (s *UserService) Create(ctx context.Context, email string) (model.User, error) {
-	err := util.ValidateEmail(email)
-	if err != nil {
-		return model.User{}, fmt.Errorf("error creating user: %v", err)
+	if !util.ValidateEmail(email) {
+		return model.User{}, ErrInvalidEmail
 	}
+
+	email = strings.ToLower(email)
 
 	return s.users.NewUser(ctx, email)
 }
 
 func (s *UserService) Get(ctx context.Context, email string) (model.User, error) {
-	err := util.ValidateEmail(email)
-	if err != nil {
+	if !util.ValidateEmail(email) {
 		return model.User{}, ErrInvalidEmail
 	}
+
+	email = strings.ToLower(email)
 
 	return s.users.GetUser(ctx, email)
 }
