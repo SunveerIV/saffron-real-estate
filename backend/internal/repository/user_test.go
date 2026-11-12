@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func TestNewUserNoCollision(t *testing.T) {
 	r := NewUserRepository(pool)
 	email := "user@example.com"
 
-	user, err := r.NewUser(context.Background(), email)
+	user, err := r.NewUser(tests.Ctx, email)
 	require.NoError(t, err)
 	assert.True(t, user.Id.Valid)
 	assert.Equal(t, email, user.Email)
@@ -26,10 +25,10 @@ func TestGetUser(t *testing.T) {
 	r := NewUserRepository(pool)
 	email := "user@example.com"
 
-	created, err := r.NewUser(context.Background(), email)
+	created, err := r.NewUser(tests.Ctx, email)
 	require.NoError(t, err)
 
-	user, err := r.GetUser(context.Background(), email)
+	user, err := r.GetUser(tests.Ctx, email)
 	require.NoError(t, err)
 	assert.Equal(t, created, user)
 }
@@ -39,10 +38,10 @@ func TestNewUserWithCollision(t *testing.T) {
 	r := NewUserRepository(pool)
 	email := "user@example.com"
 
-	_, err := r.NewUser(context.Background(), email)
+	_, err := r.NewUser(tests.Ctx, email)
 	require.NoError(t, err)
 
-	_, err = r.NewUser(context.Background(), email)
+	_, err = r.NewUser(tests.Ctx, email)
 	assert.ErrorIs(t, err, ErrEmailConflict)
 }
 
@@ -51,6 +50,6 @@ func TestUserNotFound(t *testing.T) {
 	r := NewUserRepository(pool)
 	email := "user@example.com"
 
-	_, err := r.GetUser(context.Background(), email)
+	_, err := r.GetUser(tests.Ctx, email)
 	assert.ErrorIs(t, err, ErrUserNotFound)
 }

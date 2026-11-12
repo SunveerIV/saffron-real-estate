@@ -14,7 +14,7 @@ import (
 	"saffronreal.estate/backend/internal/db"
 )
 
-var ctx context.Context
+var Ctx context.Context
 var adminPool *pgxpool.Pool
 
 func init() {
@@ -25,7 +25,7 @@ func init() {
 }
 
 func run() error {
-	ctx = context.Background()
+	Ctx = context.Background()
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -37,7 +37,7 @@ func run() error {
 		return fmt.Errorf("unable to parse config: %v", err)
 	}
 
-	adminPool, err = pgxpool.NewWithConfig(ctx, pgxcfg)
+	adminPool, err = pgxpool.NewWithConfig(Ctx, pgxcfg)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database: %v", err)
 	}
@@ -51,7 +51,7 @@ func newDatabaseName() string {
 }
 
 func NewTestDB(t *testing.T) *pgxpool.Pool {
-	testPool, err := db.PoolWithName(ctx, adminPool, newDatabaseName())
+	testPool, err := db.PoolWithName(Ctx, adminPool, newDatabaseName())
 	if err != nil {
 		log.Fatalf("unable to retrieve database main database: %v", err)
 	}
@@ -73,7 +73,7 @@ func deleteTestDB(pool *pgxpool.Pool) {
 	pool.Close()
 
 	query := "DROP DATABASE " + pgx.Identifier{name}.Sanitize()
-	_, err := adminPool.Exec(ctx, query)
+	_, err := adminPool.Exec(Ctx, query)
 	if err != nil {
 		log.Fatalf("unable to delete test database: %v", err)
 	}
