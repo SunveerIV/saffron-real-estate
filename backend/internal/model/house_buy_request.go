@@ -14,4 +14,5 @@ type HouseBuyRequest struct {
 	Address           string      `json:"address" db:"address"`
 	TimeReceived      time.Time   `json:"time_received" db:"time_received"`
 	PriceOfferedCents int64       `json:"price_offered_cents" db:"price_offered_cents"`
+	Comments          string      `json:"comments" db:"comments"`
 }
